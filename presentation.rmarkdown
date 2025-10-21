@@ -1,11 +1,13 @@
 ---
 title: "Let noun~1~ verb noun~2~"
-author: "Data & scripts: https://t1p.de/letxbey"
+author: "Stefan Hartmann"
 format: revealjs
 editor: visual
 bibliography: bibliography.bib
 csl: unified-style-sheet-for-linguistics.csl
 ---
+
+
 
 ## Data
 
@@ -18,6 +20,8 @@ csl: unified-style-sheet-for-linguistics.csl
 ## Query
 
 \[lemma="let"\] \[pos="N.\|PP*.*"\]\[pos="V.\*"\]\[pos="DT"\]?\[pos="N.\*"\]
+
+
 
 ```{r}
 #| message: false
@@ -34,7 +38,11 @@ library(DT)
 
 ```
 
+
+
 ## Results
+
+
 
 ```{r}
 #| message: false
@@ -117,6 +125,8 @@ girafe(
 )
 ```
 
+
+
 ## First observations
 
 -   recurrent quotes, e.g. *Let them eat cake*
@@ -137,6 +147,8 @@ girafe(
 
 ## Results: noun1 - verb - noun2
 
+
+
 ```{r}
 #| echo: false
 #| paged-print: true
@@ -149,7 +161,11 @@ select(df_lemmas, "noun1", "verb", "noun2") %>% group_by(noun1, verb, noun2) %>%
 
 ```
 
+
+
 ## Results: verb - noun2
+
+
 
 ```{r}
 #| paged-print: false
@@ -159,6 +175,8 @@ select(df_lemmas, "verb", "noun2") %>% group_by(verb, noun2) %>% summarise(
   #head(100) %>% 
   DT::datatable(options = list(pageLength = 6))
 ```
+
+
 
 ## Further observations
 
@@ -179,3 +197,4 @@ select(df_lemmas, "verb", "noun2") %>% group_by(verb, noun2) %>% summarise(
 -   context not taken into account (easy follow-up e.g. looking which items are preceded by *don't*)
 
 ## References
+
