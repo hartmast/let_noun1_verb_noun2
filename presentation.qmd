@@ -1,0 +1,163 @@
+---
+title: "Let noun~1~ verb noun~2~"
+author: "Stefan Hartmann"
+format: revealjs
+editor: visual
+bibliography: bibliography.bib
+csl: unified-style-sheet-for-linguistics.csl
+---
+
+## Data
+
+-   ENCOW16BX (@schaferBuildingLargeCorpora2012)
+
+-   webcorpus containing 9 billion tokens
+
+-   downloaded data queried via CWB
+
+## Query
+
+\[lemma="let"\] \[pos="N.\|PP*.*"\]\[pos="V.\*"\]\[pos="DT"\]?\[pos="N.\*"\]
+
+```{r}
+#| message: false
+#| warning: false
+#| include: false
+
+library(tidyverse)
+library(concordances)
+library(ngram)
+library(ggsankey)
+library(ggiraph)
+library(collostructions) # available at sfla.ch
+library(DT)
+
+```
+
+## Results
+
+```{r}
+#| message: false
+#| warning: false
+#| include: false
+#| paged-print: false
+
+# list files, read data
+f <- list.files("data_encow/", full.names = TRUE)
+d <- lapply(1:length(f), function(i) readLines(f[i]))
+d <- unlist(d)
+
+
+# convert to utf8 to make sure that gsub works
+d <- iconv(d, to="utf-8")
+
+# replace anything before and after keywords
+d <- gsub(".*<|>.*", "", d)
+
+# wordcount
+wc <- sapply(1:length(d), function(i) wordcount(d[i]))
+
+# to dataframe
+
+df <- tibble(
+  let = sapply(1:length(d), function(i) unlist(strsplit(d[i], split = " "))[1]),
+  noun1 = sapply(1:length(d), function(i) unlist(strsplit(d[i], split = " "))[2]),
+  verb = sapply(1:length(d), function(i) unlist(strsplit(d[i], split = " "))[3]),
+  noun2 = ifelse(wc == 5, sapply(1:length(d), function(i) unlist(strsplit(d[i], split = " "))[5]), sapply(1:length(d), function(i) unlist(strsplit(d[i], split = " "))[4]))
+)
+
+# DF with lemmas ("unknown" is replaced by the token)
+df_lemmas <- tibble(
+  let = "let",
+  noun1 = sapply(1:nrow(df), function(i) ifelse(gsub(".*/", "", df$noun1[i]) == "(unknown)", gsub("/.*", "", df$noun1[i]), gsub(".*/", "", df$noun1[i]))),
+  verb = sapply(1:nrow(df), function(i) ifelse(gsub(".*/", "", df$verb[i]) == "(unknown)", gsub("/.*", "", df$verb[i]), gsub(".*/", "", df$verb[i]))),
+  noun2 = sapply(1:nrow(df), function(i) ifelse(gsub(".*/", "", df$noun2[i]) == "(unknown)", gsub("/.*", "", df$noun2[i]), gsub(".*/", "", df$noun2[i])))
+)
+
+
+# add counts
+df_lemmas_with_counts <- df_lemmas %>% group_by(let, noun1, verb, noun2) %>% mutate(count = n()) %>% ungroup() %>% group_by(noun1) %>% mutate(noun1_count = n()) %>% ungroup() %>% group_by(verb) %>% mutate(verb_count = n()) %>% ungroup() %>% group_by(noun2) %>% mutate(noun_count = n()) %>% ungroup()
+
+# add column with minimum count
+df_lemmas_with_counts$min_count <- df_lemmas_with_counts[,6:8] %>% apply(., 1, min)
+
+p1 <- filter(df_lemmas_with_counts, min_count >= 1000) %>%
+  make_long(let, noun1, verb, noun2) %>% ggplot(aes(x = x, 
+               next_x = next_x, 
+               node = node, 
+               next_node = next_node,
+               label = node,
+               fill = factor(node))) +
+  geom_sankey() +
+  geom_sankey_label(size = 2, color = "white", fill = "gray40") +
+  scale_fill_viridis_d() +
+  guides(fill = "none") +
+  theme_minimal() +
+  theme(axis.text = element_blank()) +
+  theme(axis.title = element_blank()) +
+  theme(strip.text = element_text(size = 18)) +
+  theme(legend.text = element_text(size = 18)) +
+  theme(legend.title = element_text(size = 18, face = "bold")) +
+  theme(text = element_text(size = 18)) +
+  theme(line = element_blank(),
+        title = element_blank())
+
+```
+
+```{r}
+#| echo: false
+
+# zoomable plot
+girafe(
+  ggobj = p1,
+  options = list(
+    opts_zoom(min = 1, max = 60),
+    opts_toolbar(saveaspng = TRUE)
+  )
+)
+```
+
+## First observations
+
+-   recurrent quotes, e.g. *Let them eat cake*
+
+-   discourse-organizing and text-organizing semi-formulaic patterns, e.g. *Let me explain, let us examine*
+
+-   proverbs, e.g. *let bygones be bygones*
+
+## Collostructional analysis
+
+-   Multiple covarying collexeme analysis (@stefanowitschCovaryingCollexemes2005)
+
+-   two variants:
+
+    -   (pro)noun1 - verb - noun2
+
+    -   verb - noun2
+
+## Results: noun1 - verb - noun2
+
+```{r}
+#| echo: false
+#| paged-print: true
+
+select(df_lemmas, "noun1", "verb", "noun2") %>% group_by(noun1, verb, noun2) %>% summarise(
+  n = n()
+) %>% as.data.frame() %>% collex.covar.mult(raw = FALSE) %>% 
+  #head(100) %>% 
+  DT::datatable(options = list(pageLength = 6))
+
+```
+
+## Results: verb - noun2
+
+```{r}
+#| paged-print: false
+select(df_lemmas, "verb", "noun2") %>% group_by(verb, noun2) %>% summarise(
+  n = n()
+) %>% as.data.frame() %>% collex.covar(raw = FALSE) %>% 
+  #head(100) %>% 
+  DT::datatable(options = list(pageLength = 6))
+```
+
+## References

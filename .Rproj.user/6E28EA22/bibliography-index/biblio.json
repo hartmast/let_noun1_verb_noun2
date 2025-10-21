@@ -61,33 +61,6 @@
             "page": "486493",
             "title": "Building large corpora from the web using a new efficient tool chain",
             "type": "chapter"
-        },
-        {
-            "author": [
-                {
-                    "family": "Stefanowitsch",
-                    "given": "Anatol"
-                },
-                {
-                    "family": "Gries",
-                    "given": "Stefan Th"
-                }
-            ],
-            "container-title": "Corpus Linguistics and Linguistic Theory",
-            "id": "stefanowitschCovaryingCollexemes2005",
-            "issue": "1",
-            "issued": {
-                "date-parts": [
-                    [
-                        2005
-                    ]
-                ]
-            },
-            "note": "Citation Key: stefanowitschCovaryingCollexemes2005",
-            "page": "143",
-            "title": "Covarying collexemes",
-            "type": "article-journal",
-            "volume": "1"
         }
     ],
     "project_biblios": []

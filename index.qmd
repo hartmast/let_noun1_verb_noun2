@@ -151,11 +151,12 @@ select(df_lemmas, "noun1", "verb", "noun2") %>% group_by(noun1, verb, noun2) %>%
 
 ```
 
-...  only verb and noun2:
+... only verb and noun2:
 
 ```{r}
 #| message: false
 #| warning: false
+#| paged-print: true
 
 select(df_lemmas, "verb", "noun2") %>% group_by(verb, noun2) %>% summarise(
   n = n()
@@ -164,4 +165,3 @@ select(df_lemmas, "verb", "noun2") %>% group_by(verb, noun2) %>% summarise(
   DT::datatable()
 
 ```
-
