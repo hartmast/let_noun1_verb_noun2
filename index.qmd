@@ -8,6 +8,8 @@ csl: unified-style-sheet-for-linguistics
 
 ## Preliminaries
 
+Data available [here](https://github.com/hartmast/let_noun1_verb_noun2)
+
 Packages etc.
 
 ```{r}
